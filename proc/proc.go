@@ -3,6 +3,8 @@ package proc
 import (
 	"errors"
 	"fmt"
+	"github.com/p12i/gxylo/connections"
+	"github.com/p12i/gxylo/fd"
 	"os"
 	"path"
 	"strconv"
@@ -10,7 +12,7 @@ import (
 
 type Proc struct {
 	PID int
-	FDS []FD
+	FDS []fd.FD
 }
 
 func NewProc(pid int) (Proc, error) {
@@ -42,19 +44,19 @@ func (p *Proc) fileDescriptorsLinkNames(path string) ([]string, error) {
 }
 
 func (p *Proc) ParseFDS() error {
-	connections := ConnectionList{}
+	connections := connections.ConnectionList{}
 
 	if err := connections.ParseConnections(); err != nil {
 		return err
 	}
 
-	var f FDInterface
+	var f fd.FDInterface
 	root_path := path.Join("/proc", strconv.Itoa(p.PID), "fd")
 	fds, err := p.fileDescriptorsLinkNames(root_path)
 	if err != nil {
 		return err
 	}
-	p.FDS = make([]FD, len(fds))
+	p.FDS = make([]fd.FD, len(fds))
 
 	for _, elem := range fds {
 		fd_path := path.Join(root_path, fmt.Sprint(elem))
@@ -68,11 +70,11 @@ func (p *Proc) ParseFDS() error {
 			return err
 		}
 
-		f = NewFD(fd_int, target)
+		f = fd.NewFD(fd_int, target)
 		fmt.Printf("%s -> %s\n", elem, target)
 		fmt.Printf("%d -> %s [%d]\n", f.GetNumber(), f.GetType(), f.GetInode())
 		if c := connections.GetConnection(f.GetInode()); c != nil {
-			fmt.Println(c.String())
+			fmt.Print(c.String())
 		}
 	}
 	fmt.Println(connections.String())

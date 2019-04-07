@@ -1,4 +1,4 @@
-package proc
+package fd
 
 type FDPipe struct {
 	FD
