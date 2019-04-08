@@ -16,15 +16,13 @@ var ConnectionSourceMap = map[string]string{
 	"unix":    "/proc/net/unix",
 	"raw":     "/proc/net/raw",
 	"raw6":    "/proc/net/raw6",
-	"packet":  "/proc/net/packet",  // TODO
-	"netlink": "/proc/net/netlink", // TODO
+	"packet":  "/proc/net/packet",
+	"netlink": "/proc/net/netlink", // Describe?
 }
 
 type Connection interface {
 	String() string
 }
-
-
 
 type ConnectionList struct {
 	Connections map[uintptr]Connection
@@ -40,6 +38,8 @@ func (l *ConnectionList) ParseConnections() error {
 		l.ParseUnixConnections,
 		l.ParseRawConnections,
 		l.ParseRaw6Connections,
+		l.ParseNetlinkConnections,
+		l.ParsePacketConnections,
 	}
 
 	for _, f := range functions {
