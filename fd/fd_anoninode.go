@@ -10,17 +10,23 @@ type FDAnonInode struct {
 	SubType string
 }
 
-func NewFDAnonInode(i uintptr, target string) *FDAnonInode {
+func NewFDAnonInode(pid uint64, i uint64, target string) *FDAnonInode {
 	s := FDAnonInode{}
 	s.Number = i
-	start := strings.LastIndex(target, "[")
-	end := strings.LastIndex(target, "]")
-	if start != -1 && end != -1 {
-		s.SubType = target[start:end]
+	s.PID = pid
+	s.SubType = s.bracketParse(target)
+	if len(s.SubType) == 0 && strings.Contains(target, ":") {
+		start := strings.LastIndex(target, ":")
+		s.SubType = target[start+1:]
 	}
 
+	s.SetFileInfo()
 	return &s
 }
 func (f *FDAnonInode) GetType() string {
-	return fmt.Sprintf("Anon Inode[%s]", f.SubType)
+	return fmt.Sprintf("Anon Inode")
+}
+
+func (f *FDAnonInode) GetInfo() string {
+	return fmt.Sprintf("%-8s %s", "SUBTYPE", f.SubType)
 }

@@ -25,11 +25,11 @@ type Connection interface {
 }
 
 type ConnectionList struct {
-	Connections map[uintptr]Connection
+	Connections map[uint64]Connection
 }
 
 func (l *ConnectionList) ParseConnections() error {
-	l.Connections = make(map[uintptr]Connection)
+	l.Connections = make(map[uint64]Connection)
 	var functions = []func() error{
 		l.ParseTCPConnections,
 		l.ParseTCP6Connections,
@@ -88,6 +88,7 @@ func parseSocketAddress(s string) (*net.IP, int, error) {
 
 }
 
-func (l *ConnectionList) GetConnection(p uintptr) Connection {
-	return l.Connections[p]
+func (l *ConnectionList) GetConnection(p uint64) (Connection, bool) {
+	c, ok := l.Connections[p]
+	return c, ok
 }

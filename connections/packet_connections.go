@@ -11,7 +11,6 @@ import (
 )
 
 type PacketConnection struct {
-	Sk     int
 	RefCnt int
 	Type   int
 	Proto  int
@@ -19,7 +18,7 @@ type PacketConnection struct {
 	R      int
 	Rmem   int
 	User   int
-	Inode  uintptr
+	Inode  uint64
 }
 
 //https://godoc.org/golang.org/x/sys/unix
@@ -167,8 +166,9 @@ func (l *ConnectionList) ParsePacketConnections() error {
 		fields := strings.Fields(s.Text())
 		t := PacketConnection{}
 
+		var null []byte
 		for _, elem := range []tParsingStruct{
-			tParsingStruct{0, "%x", &t.Sk},
+			tParsingStruct{0, "%x", &null},
 			tParsingStruct{1, "%d", &t.RefCnt},
 			tParsingStruct{2, "%d", &t.Type},
 			tParsingStruct{3, "%x", &t.Proto},
@@ -179,7 +179,6 @@ func (l *ConnectionList) ParsePacketConnections() error {
 			tParsingStruct{8, "%d", &t.Inode},
 		} {
 			if _, err := fmt.Sscanf(fields[elem.Field], elem.Format, elem.Pointer); err != nil {
-				fmt.Println("Error ", err)
 				return err
 			}
 		}

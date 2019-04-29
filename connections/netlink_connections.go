@@ -8,7 +8,6 @@ import (
 )
 
 type NetlinkConnection struct {
-	Sk     int
 	Eth    int
 	Pid    uintptr
 	Groups int64
@@ -17,7 +16,7 @@ type NetlinkConnection struct {
 	Dump   int
 	Locks  int
 	Drops  int
-	Inode  uintptr
+	Inode  uint64
 }
 
 func (t NetlinkConnection) String() string {
@@ -25,7 +24,7 @@ func (t NetlinkConnection) String() string {
 		"%-8s "+
 			"Eth: %3d "+
 			"Pid: %12d "+
-			"Groups: %5x "+
+			"Groups: %x "+
 			"Rmem: %3d "+
 			"Wmem: %3d "+
 			"Dump: %3d "+
@@ -55,8 +54,9 @@ func (l *ConnectionList) ParseNetlinkConnections() error {
 		fields := strings.Fields(s.Text())
 		t := NetlinkConnection{}
 
+		var null []byte
 		for _, elem := range []tParsingStruct{
-			tParsingStruct{0, "%x", &t.Sk},
+			tParsingStruct{0, "%x", &null},
 			tParsingStruct{1, "%d", &t.Eth},
 			tParsingStruct{2, "%d", &t.Pid},
 			tParsingStruct{3, "%x", &t.Groups},
@@ -68,7 +68,6 @@ func (l *ConnectionList) ParseNetlinkConnections() error {
 			tParsingStruct{9, "%d", &t.Inode},
 		} {
 			if _, err := fmt.Sscanf(fields[elem.Field], elem.Format, elem.Pointer); err != nil {
-				fmt.Println("Error ", err)
 				return err
 			}
 		}

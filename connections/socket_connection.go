@@ -15,7 +15,7 @@ type SocketConnection struct {
 	RemoteAddress *net.IP
 	RemotePort    int
 	Status        int
-	Inode         uintptr
+	Inode         uint64
 }
 
 var TCPConnectionStatusMap = map[int]string{

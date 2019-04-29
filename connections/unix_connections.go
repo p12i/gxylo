@@ -32,18 +32,17 @@ var UnixSocketFlags = map[int]string{
 }
 
 type UnixConnection struct {
-	Number   int
 	RefCount int
 	Protocol int
 	Flags    int
 	UnixType int
 	State    int
-	Inode    uintptr
+	Inode    uint64
 	Path     string
 }
 
 type tParsingStruct struct {
-	Field   int
+	Field   int64
 	Format  string
 	Pointer interface{}
 }
@@ -62,7 +61,7 @@ func parseFlags(flag int) string {
 func (t *UnixConnection) String() string {
 	return fmt.Sprintf(
 		"%-8s "+
-			"RefCount: %5d "+
+			"RefCount: %6d "+
 			"Protocol: %2d "+
 			"Flags: %-10s "+
 			"USType: %-9s "+
@@ -91,8 +90,9 @@ func (l *ConnectionList) ParseUnixConnections() error {
 		fields := strings.Fields(s.Text())
 		t := UnixConnection{}
 
+		var null []byte
 		for _, elem := range []tParsingStruct{
-			tParsingStruct{0, "%x:", &t.Number},
+			tParsingStruct{0, "%x:", &null},
 			tParsingStruct{1, "%x", &t.RefCount},
 			tParsingStruct{2, "%x", &t.Protocol},
 			tParsingStruct{3, "%x", &t.Flags},
